@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="InstallDependencies" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="15.0">
+	<Target Name="InstallDependencies" DependsOnTargets="InstallPropertiesDefinition;InstallPropertiesInstance" />
+	
+	<Target Name="InstallPropertiesDefinition">
+		<PropertyGroup>
+			<Registry>https://registry.npmjs.org</Registry>
+			<PackageScope>@cinthamo</PackageScope>
+			<PackageName>properties-definition-editor</PackageName>
+			<NPMPackageVersion Condition="'$(VersionTag)'==''">@0.0.1</NPMPackageVersion>
+			<NPMPackageVersion Condition="'$(VersionTag)'=='trunk'">@beta</NPMPackageVersion>
+			<NPMPackageVersion Condition="'$(VersionTag)'=='stable'">@master</NPMPackageVersion>
+			<Package>$(PackageScope)/$(PackageName)$(NPMPackageVersion)</Package>
+			<Package Condition="'$(NPMPackageVersion)'==''">$(PackageScope)/$(PackageName)</Package>
+		</PropertyGroup>
+		
+		<MSBuild
+			Projects="installNPMPackage.targets;"
+			Targets="InstallPackage"
+			Properties="Registry=$(Registry);
+						PackageScope=$(PackageScope);
+						PackageName=$(PackageName);
+						Package=$(Package)"/>
+	</Target>
+	
+	<Target Name="InstallPropertiesInstance">
+		<PropertyGroup>
+			<Registry>https://registry.npmjs.org</Registry>
+			<PackageScope>@genexus</PackageScope>
+			<PackageName>properties-instance-editor</PackageName>
+			<NPMPackageVersion Condition="'$(VersionTag)'==''">@0.0.1</NPMPackageVersion>
+			<NPMPackageVersion Condition="'$(VersionTag)'=='trunk'">@beta</NPMPackageVersion>
+			<NPMPackageVersion Condition="'$(VersionTag)'=='stable'">@master</NPMPackageVersion>
+			<Package>$(PackageScope)/$(PackageName)$(NPMPackageVersion)</Package>
+			<Package Condition="'$(NPMPackageVersion)'==''">$(PackageScope)/$(PackageName)</Package>
+		</PropertyGroup>
+		
+		<MSBuild
+			Projects="installNPMPackage.targets;"
+			Targets="InstallPackage"
+			Properties="Registry=$(Registry);
+						PackageScope=$(PackageScope);
+						PackageName=$(PackageName);
+						Package=$(Package)"/>
+	</Target>
+</Project>

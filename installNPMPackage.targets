@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="InstallPackage" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+	<Target Name ="InstallPackage">
+		<Message Text="Installing: $(Package)"/>
+		<Exec Command="npm init --force"/>
+		<Exec Command="npm install $(Package) --production --registry $(Registry)"/>
+		<Exec ContinueOnError="True" Command="Xcopy /S /I /Y .\node_modules\$(PackageScope)\$(PackageName)\$(Assets) $(AssetsTargetFolder)" Condition="'$(Assets)'!=''"/>
+		<Exec ContinueOnError="True" Command="Xcopy /S /I /Y .\node_modules\$(PackageScope)\$(PackageName)\$(Components) $(ComponentsTargetFolder)" Condition="'$(Components)'!=''"/>
+		<Exec Command='forfiles /P $(AssetsTargetFolder) /S /C "cmd /c Copy /B @file+,,@file"' Condition="'$(AssetsTargetFolder)'!=''"/>
+		<Exec Command='forfiles /P $(ComponentsTargetFolder) /S /C "cmd /c Copy /B @file+,,@file"' Condition="'$(ComponentsTargetFolder)'!=''"/>
+	</Target>
+</Project>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Pack" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="15.0">
+
+	<Import Project="dependencies.targets" />
+	
+	<Target Name="Pack" DependsOnTargets="InstallDependencies">
+		<Exec Command="msbuild GeneXus.Editors.PropertiesLanguage.csproj -p:Configuration=$(Configuration) -t:pack" />
+	</Target>
+	
+	<Target Name="Build">
+	</Target>
+</Project>
