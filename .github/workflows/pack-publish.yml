@@ -1,0 +1,108 @@
+name: Pack and Publish
+
+on: 
+  push:
+    branches:
+      - 'master'
+      - 'beta'
+  workflow_dispatch:
+    inputs:
+      commitMessage:
+        default: ''
+
+jobs:
+  build:
+    env:
+      Configuration: Release
+      NuGetRepository: ${{ secrets.NEXUS_NUGET_PRERELEASES }}
+      BuildProject: GeneXus.Editors.PropertiesLanguage/GeneXus.Editors.PropertiesLanguage.sln
+      WorkingDir: '.'
+
+    runs-on: [self-hosted, windows]
+
+    steps:
+      - name: Clean previous build #Cleaning dist, bin, obj and node_modules.
+        run: |
+          Get-ChildItem "$Env:WorkingDir\node_modules" -Recurse -ErrorAction SilentlyContinue |
+            ForEach-Object {
+            rm -Recurse $_.FullName
+          }
+          Get-ChildItem "$Env:WorkingDir\dist" -Recurse -ErrorAction SilentlyContinue |
+            ForEach-Object {
+            rm -Recurse $_.FullName
+          }
+          Get-ChildItem "$Env:WorkingDir\*\bin" -Recurse -ErrorAction SilentlyContinue |
+            ForEach-Object {
+            rm -Recurse $_.FullName
+          }
+          Get-ChildItem "$Env:WorkingDir\*\obj" -Recurse -ErrorAction SilentlyContinue |
+            ForEach-Object {
+            rm -Recurse $_.FullName
+          }
+
+      - name: checkout
+        uses: actions/checkout@v1
+
+      - name: Checkout action - dispatch-build-result
+        uses: actions/checkout@v2
+        if: github.repository_owner == 'GeneXusLabs'
+        with:
+            repository: genexuslabs/dispatch-build-result
+            ref: releases/v2
+            token: ${{ secrets.SECURE_TOKEN }}
+            path: .github/actions/dispatch-build-result
+
+      - name: Restore
+        run: dotnet restore $Env:BuildProject
+
+      - name: Create nuget packages
+        run: |
+            # Get the FileVersion from the Directory.Build.props file
+            $GetFileVersionOutput = dotnet msbuild Directory.Build.props /t:GetFileVersionForPackage /p:CommitNumber=$Env:CommitNumber
+            "$GetFileVersionOutput" -match "(?<=FileVersion:)(.*)"
+            $GetFileVersionOutput = $Matches[0]
+
+            $VersionTag = ''
+            if ($Env:GITHUB_REF.EndsWith('beta')) { $VersionTag = "trunk" }
+            if ($Env:GITHUB_REF.EndsWith('master')) { $VersionTag = "stable" }
+            $Timestamp = (Get-Date).ToString("yyyyMMddHHmmss")
+            $NuGetPackageVersion = $GetFileVersionOutput + "-" + $VersionTag + "." + $Timestamp
+
+            echo "NuGetPackageVersion=$NuGetPackageVersion" >> $env:GITHUB_ENV
+
+            # Install dependencies
+            dotnet msbuild dependencies.targets -p:VersionTag=$VersionTag
+
+            $GXInstall = $null
+            if ($Env:GITHUB_REF.EndsWith('master')) {
+              $GXInstall = $Env:GXStableInstallForActions
+            } else {
+              $GXInstall = $Env:GXTrunkInstallForActions
+            }
+
+            # Create packages
+            dotnet pack $Env:BuildProject -p:GXInstall=$GXInstall -p:Configuration=$Env:Configuration -p:Version=$NuGetPackageVersion
+
+      - name: Publish packages
+        run: |
+            Get-ChildItem "$Env:WorkingDir\dist\nuget\*.nupkg" -Recurse |
+                ForEach-Object {
+                    dotnet nuget push $_.FullName --source $Env:NuGetRepository
+                }
+
+      - name: Set Package Name
+        run: echo "DispatchPackageNames=GeneXus.Editors.PropertiesLanguage" >> $env:GITHUB_ENV
+
+      - name: Set Commit Message
+        if: github.event.inputs.commitMessage != null
+        run: echo "InputCommitMessage=${{ github.event.inputs.commitMessage }}" >> $env:GITHUB_ENV
+
+      - name: Dispatch build result
+        uses: ./.github/actions/dispatch-build-result
+        if: github.repository_owner == 'GeneXusLabs'
+        with:
+            new-version: ${{ env.NuGetPackageVersion }}
+            committer: ${{ github.actor }}
+            package-names: ${{ env.DispatchPackageNames }}
+            token: ${{ secrets.SECURE_TOKEN }}
+            commit-message: ${{ env.InputCommitMessage }}
