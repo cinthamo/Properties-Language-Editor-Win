@@ -1,0 +1,29 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <PackageId>GeneXus.Editors.PropertiesLanguage</PackageId>
+    <Description>Properties Language</Description>
+    <Version>0.0.3</Version>
+    <Authors>GeneXus</Authors>
+    <Company>GeneXus</Company>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Content Include="node_modules\@cinthamo\properties-definition-language-editor\wp-dist\**\*.*">
+      <Pack>true</Pack>
+      <PackagePath>contentFiles\any\any\PropertiesDefinition</PackagePath>
+      <PackageCopyToOutput>true</PackageCopyToOutput>
+    </Content>
+    <Content Include="node_modules\@cinthamo\properties-instance-language-editor\wp-dist\**\*.*">
+      <Pack>true</Pack>
+      <PackagePath>contentFiles\any\any\PropertiesInstance</PackagePath>
+      <PackageCopyToOutput>true</PackageCopyToOutput>
+    </Content>
+  </ItemGroup>
+
+  <Import Project="dependencies.targets" />
+
+	<Target Name="Build" DependsOnTargets="InstallDependencies" />
+
+</Project>

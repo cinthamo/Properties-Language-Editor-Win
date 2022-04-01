@@ -1,8 +1,6 @@
-.vs
 dist
 node_modules
 package.json
 package-lock.json
-GeneXus.Editors.PropertiesLanguage/bin
-GeneXus.Editors.PropertiesLanguage/obj
-GeneXus.Editors.PropertiesLanguage/.vs
+obj
+bin

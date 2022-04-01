@@ -6,7 +6,7 @@
 		<PropertyGroup>
 			<Registry>https://registry.npmjs.org</Registry>
 			<PackageScope>@cinthamo</PackageScope>
-			<PackageName>properties-definition-editor</PackageName>
+			<PackageName>properties-definition-language-editor</PackageName>
 			<NPMPackageVersion Condition="'$(VersionTag)'==''">@0.0.1</NPMPackageVersion>
 			<NPMPackageVersion Condition="'$(VersionTag)'=='trunk'">@beta</NPMPackageVersion>
 			<NPMPackageVersion Condition="'$(VersionTag)'=='stable'">@master</NPMPackageVersion>
@@ -26,8 +26,8 @@
 	<Target Name="InstallPropertiesInstance">
 		<PropertyGroup>
 			<Registry>https://registry.npmjs.org</Registry>
-			<PackageScope>@genexus</PackageScope>
-			<PackageName>properties-instance-editor</PackageName>
+			<PackageScope>@cinthamo</PackageScope>
+			<PackageName>properties-instance-language-editor</PackageName>
 			<NPMPackageVersion Condition="'$(VersionTag)'==''">@0.0.1</NPMPackageVersion>
 			<NPMPackageVersion Condition="'$(VersionTag)'=='trunk'">@beta</NPMPackageVersion>
 			<NPMPackageVersion Condition="'$(VersionTag)'=='stable'">@master</NPMPackageVersion>
